@@ -1,0 +1,85 @@
+﻿"Otone.dll"
+Classes' library status, blocks' purposes
+
+=========================
+
+Block: exceptions for preset.
+Purpose: errors' diagnostics.
+Members:
+	+ class PresetException,
+	+ enumeration PresetExceptionType.
+Users:
+	+ sealed class PresetTxt,
+	- sealed class PresetXml,
+	- sealed class PresetSql,
+	- sealed class PresetSoap,
+	- sealed class PresetBinary,
+	- USER PROGRAMME.
+Status: ready.
+
+=========================
+
+Block: exceptions for piano.
+Purpose: errors' diagnostics.
+Members:
+	+ class PianoException,
+	+ enumeration PianoExceptionType.
+Users:
+	+ class PitchFork,
+	- sealed class Piano,
+	- USER PROGRAMME.
+Status: ready.
+
+=========================
+
+Block: exceptions for piano.
+Purpose: errors' diagnostics.
+Members:
+	+ class SynthesisException,
+	+ enumeration SynthesisExceptionType.
+Users:
+	+ class Oscillator,
+	- class Sound,
+	- USER PROGRAMME.
+Status: ready.
+
+=========================
+
+Block: piano.
+Purpose: user's interaction with piano in programming code.
+Members:
+	+ class Note,
+	- sealed class Piano,
+	+ enumeration Key,
+	+ enumeration Octave,
+	- errors' diagnostics block.
+Users:
+	- USER PROGRAMME.
+
+=========================
+
+Block: preset.
+Purpose: user's interaction with file system in different formats (also with SQLDB).
+Members:
+	+ interface IPreset,
+	+ sealed class PresetTxt,
+	- sealed class PresetXml,
+	- sealed class PresetSql,
+	- sealed class PresetSoap,
+	- sealed class PresetBinary,
+	- errors' diagnostics block.
+Users:
+	- oscillator block,
+	- USER PROGRAMME.
+
+=========================
+
+Block: oscillator.
+Purpose: user's implicit interaction between his programme and Microsoft.DirectX.DirectSound namespace.
+Members:
+	+ interface IMixer,
+	+ class Oscillator,
+	- class Sound,
+	+ enumeration WaveShape.
+Users:
+	- USER PROGRAMME.
