@@ -1,7 +1,7 @@
 ﻿namespace Otone.Main.Keys
 {
     /// <summary>
-    /// Перечисление октав (от 0 до 8 включительно).
+    /// Перечисление октав (от 1 до 8 включительно).
     /// </summary>
     public enum Octave
     {

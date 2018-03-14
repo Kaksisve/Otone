@@ -5,7 +5,7 @@ namespace Otone.Main.Synthesis
     /// <summary>
     /// Определяет интерфейс поведения класса, работающего со звуком. Представляет микшер.
     /// </summary>
-    public interface IMixer
+    internal interface IMixer
     {
         /// <summary>
         /// Процентная громкость.

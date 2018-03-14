@@ -10,6 +10,9 @@ namespace Otone.Main.Preset
     /// </summary>
     public sealed class PresetTxt : IPreset
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         public PresetTxt()
         {
 
@@ -22,38 +25,38 @@ namespace Otone.Main.Preset
         /// <param name = "fileName">
         /// Путь к файлу.
         /// </param>
-        /// <param name = "oscs">
+        /// <param name = "oscillators">
         /// Неинициализированный массив осцилляторов для загрузки в него пресета.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void LoadPreset(String fileName, out Oscillator[] oscs)
+        public void LoadPreset(String fileName, out Oscillator[] oscillators)
         {
             try
             {
-                oscs = null;
+                oscillators = null;
                 using (StreamReader reader = new StreamReader(fileName))
                 {
-                    String pre = reader.ReadToEnd().Trim('\n', '\r', ' ');
-                    String[] av = pre.Split(new Char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                    oscs = new Oscillator[av.Length];
-                    for (Int32 i = 0; i < av.Length; i++)
+                    String first = reader.ReadToEnd().Trim('\n', '\r', ' ');
+                    String[] second = first.Split(new Char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    oscillators = new Oscillator[second.Length];
+                    for (Int32 i = 0; i < second.Length; i++)
                     {
-                        av[i].Trim('\n', '\r', ' ');
-                        String[] post = av[i].Split(new Char[] { ' ' }, StringSplitOptions.None);
-                        oscs[i] = new Oscillator
+                        second[i].Trim('\n', '\r', ' ');
+                        String[] third = second[i].Split(new Char[] { ' ' }, StringSplitOptions.None);
+                        oscillators[i] = new Oscillator
                         (
-                            Convert.ToBoolean(post[0]),
-                            Convert.ToInt32(post[1]),
-                            Convert.ToInt32(post[2]),
-                            Convert.ToInt32(post[3]),
-                            (WaveShape)Convert.ToInt32(post[4])
+                            Convert.ToBoolean(third[0]),
+                            Convert.ToInt32(third[1]),
+                            Convert.ToInt32(third[2]),
+                            Convert.ToInt32(third[3]),
+                            (Waveshape)Convert.ToInt32(third[4])
                         );
                     }
                 }
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.TxtLoadError);
+                throw new PresetException("Ошибка при загрузке пресета из Txt-файла.");
             }
         }
 
@@ -68,32 +71,32 @@ namespace Otone.Main.Preset
         /// Массив осцилляторов для записи его в пресет.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void SavePreset(String fileName, Oscillator[] oscs)
+        public void SavePreset(String fileName, Oscillator[] oscillators)
         {
             try
             {
                 using (StreamWriter writer = new StreamWriter(fileName))
                 {
-                    for (Int32 i = 0; i < oscs.Length; i++)
+                    for (Int32 i = 0; i < oscillators.Length; i++)
                     {
                         writer.WriteLine
                         (
-                            oscs[i].Enable
+                            oscillators[i].Enable
                             + " " +
-                            oscs[i].Volume
+                            oscillators[i].Volume
                             + " " +
-                            oscs[i].Frequency
+                            oscillators[i].Frequency
                             + " " +
-                            oscs[i].Amplitude
+                            oscillators[i].Amplitude
                             + " " +
-                            (Int32)oscs[i].Shape
+                            (Int32)oscillators[i].Shape
                         );
                     }
                 }
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.TxtSaveError);
+                throw new PresetException("Ошибка при записи пресета в Txt-файл.");
             }
         }
     }

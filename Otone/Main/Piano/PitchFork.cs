@@ -21,12 +21,15 @@ namespace Otone.Main.Keys
         }
 
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "frequency">
         /// Частота [1; 100] Гц.
         /// </param>
         public PitchFork(Int32 frequency)
         {
-            if (frequency < 1 || frequency > 100) throw new PianoException(PianoExceptionType.OutOfPermissibleValue);
+            if (frequency < 1 || frequency > 100) throw new PianoException("Нарушены границы допустимого значения.");
             this.frequency = frequency;
         }
     }

@@ -11,6 +11,9 @@ namespace Otone.Main.Preset
     /// </summary>
     public sealed class PresetBinary : IPreset
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         public PresetBinary()
         {
 
@@ -27,19 +30,19 @@ namespace Otone.Main.Preset
         /// Массив осцилляторов для записи его в пресет.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void SavePreset(String fileName, Oscillator[] oscs)
+        public void SavePreset(String fileName, Oscillator[] oscillators)
         {
             try
             {
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                 {
-                    formatter.Serialize(stream, oscs);
+                    formatter.Serialize(stream, oscillators);
                 }
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.BinarySaveError);
+                throw new PresetException("Ошибка при записи пресета в Binary-файл.");
             }
         }
 
@@ -50,24 +53,24 @@ namespace Otone.Main.Preset
         /// <param name = "fileName">
         /// Путь к файлу.
         /// </param>
-        /// <param name = "oscs">
+        /// <param name = "oscillators">
         /// Неинициализированный массив осцилляторов для загрузки в него пресета.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void LoadPreset(String fileName, out Oscillator[] oscs)
+        public void LoadPreset(String fileName, out Oscillator[] oscillators)
         {
             try
             {
-                oscs = null;
+                oscillators = null;
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    oscs = (Oscillator[])formatter.Deserialize(stream);
+                    oscillators = (Oscillator[])formatter.Deserialize(stream);
                 }
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.BinaryLoadError);
+                throw new PresetException("Ошибка при загрузке пресета из Binary-файла.");
             }
         }
     }

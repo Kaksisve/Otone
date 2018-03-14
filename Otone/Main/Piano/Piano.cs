@@ -4,7 +4,7 @@ using Otone.Service.Exceptions;
 namespace Otone.Main.Keys
 {
     /// <summary>
-    /// Представляет поля и методы для работы с массивом клавиш.
+    /// Представляет поля и методы для работы с массивом клавиш. Не наследуется.
     /// </summary>
     public sealed class Piano
     {
@@ -18,35 +18,11 @@ namespace Otone.Main.Keys
         /// <param name = "octave">
         /// Октава.
         /// </param>
-        public Note this[Int32 key, Int32 row]
+        public Note this[Int32 key, Int32 octave]
         {
             get
             {
-                return this[key, row];
-            }
-        }
-        /// <summary>
-        /// Отдельная клавиша.
-        /// </summary>
-        /// <param name = "key">
-        /// Клавиша.
-        /// </param>
-        /// <param name = "octave">
-        /// Октава.
-        /// </param>
-        /// <exception cref = "PianoException"></exception>
-        public Note this[Key key, Octave octave]
-        {
-            get
-            {
-                try
-                {
-                    return this[(Int32)key, (Int32)octave];
-                }
-                catch
-                {
-                    throw new PianoException(PianoExceptionType.ThereIsNoThisKey);
-                }
+                return notes[key, octave];
             }
         }
 
@@ -94,6 +70,9 @@ namespace Otone.Main.Keys
         private Int32 endOctave;
 
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "left">
         /// Левая граница (включённый предел).
         /// </param>
@@ -103,7 +82,7 @@ namespace Otone.Main.Keys
         /// <exception cref = "PianoException"></exception>
         public Piano(Octave left, Octave right)
         {
-            if ((Int32)right - (Int32)left < 1) throw new PianoException(PianoExceptionType.IndexesMismatch);
+            if ((Int32)right - (Int32)left < 1) throw new PianoException("Правая октава должна быть больше левой.");
             startOctave = (Int32)left;
             endOctave = (Int32)right;
             octaves = (right - left) + 1;
@@ -118,7 +97,7 @@ namespace Otone.Main.Keys
             {
                 for (Int32 j = 0; j < octaves; j++)
                 {
-                    notes[i, j] = new Note((Key)i, (Octave)(j + startOctave));
+                    notes[i, j] = new Note((Key)i, (Octave)j + startOctave);
                 }
             }
         }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Типы звуковой волны.
     /// </summary>
-    public enum WaveShape
+    public enum Waveshape
     {
         /// <summary>
         /// Синусоида.

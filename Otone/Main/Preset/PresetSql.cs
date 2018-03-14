@@ -14,6 +14,9 @@ namespace Otone.Main.Preset
         private String name = "Preset";
 
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "name">
         /// Имя таблицы в базе данных.
         /// </param>
@@ -38,52 +41,48 @@ namespace Otone.Main.Preset
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
-                if (db.State == ConnectionState.Closed)
-                {
-                    db.Open();
-                }
-                String markup = "CREATE TABLE [dbo].[" + name + "] \n" +
-                                "( \n" +
-                                    "ID INT IDENTITY(1, 1) NOT NULL \n" +
-                                    "Enable BINARY NOT NULL \n" +
-                                    "Volume INT NOT NULL \n" +
-                                    "Frequency INT NOT NULL \n" +
-                                    "Amplitude INT NOT NULL \n" +
-                                    "Shape INT NOT NULL \n" +
-                                "); \n";
+                db.Open();
+                String markup = "CREATE TABLE [dbo].[" + name + "]" +
+                                "(" +
+                                    "ID INT IDENTITY(1, 1) NOT NULL, " +
+                                    "Enable BIT NOT NULL, " +
+                                    "Volume INT NOT NULL, " +
+                                    "Frequency INT NOT NULL, " +
+                                    "Amplitude INT NOT NULL, " +
+                                    "Shape INT NOT NULL" +
+                                ");";
                 SqlCommand build = new SqlCommand(markup, db);
                 build.ExecuteNonQuery();
-                SqlCommand insert = new SqlCommand
-                {
-                    CommandText = "INSERT INTO " +
-                                        name +
-                                        "(" +
-                                            "Enable, " +
-                                            "Volume, " +
-                                            "Frequency, " +
-                                            "Amplitude, " +
-                                            "Shape, " +
-                                        ")" +
-                                        "values(@param0, @param1, @param2, @param3, @param4, @param5, @param6)"
-                };
-                insert.Parameters.Add("@param0", SqlDbType.Binary);
+                String query = "INSERT INTO " +
+                                name +
+                                "(" +
+                                    "Enable, " +
+                                    "Volume, " +
+                                    "Frequency, " +
+                                    "Amplitude, " +
+                                    "Shape" +
+                                ") " +
+                                "VALUES(@param0, @param1, @param2, @param3, @param4)";
+                SqlCommand insert = new SqlCommand(query, db);
+                insert.Parameters.Add("@param0", SqlDbType.Bit);
                 insert.Parameters.Add("@param1", SqlDbType.Int);
                 insert.Parameters.Add("@param2", SqlDbType.Int);
                 insert.Parameters.Add("@param3", SqlDbType.Int);
                 insert.Parameters.Add("@param4", SqlDbType.Int);
                 for (Int32 i = 0; i < oscillators.Length; i++)
                 {
-                    insert.Parameters[0].Value = Convert.ToByte(oscillators[i].Enable);
+                    insert.Parameters[0].Value = oscillators[i].Enable;
                     insert.Parameters[1].Value = oscillators[i].Volume;
                     insert.Parameters[2].Value = oscillators[i].Frequency;
                     insert.Parameters[3].Value = oscillators[i].Amplitude;
                     insert.Parameters[4].Value = (Int32)oscillators[i].Shape;
                     insert.ExecuteNonQuery();
                 }
+                db.Close();
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.SqlSaveError);
+                throw new PresetException("Ошибка при записи пресета в базу данных Sql.");
             }
         }
 
@@ -94,40 +93,45 @@ namespace Otone.Main.Preset
         /// <param name = "connectionString">
         /// Строка подключения к БД.
         /// </param>
-        /// <param name = "oscs">
+        /// <param name = "oscillators">
         /// Неинициализированный массив осцилляторов для загрузки в него пресета.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void LoadPreset(String connectionString, out Oscillator[] oscs)
+        public void LoadPreset(String connectionString, out Oscillator[] oscillators)
         {
             try
             {
-                oscs = null;
+                oscillators = null;
                 SqlConnection db = new SqlConnection(connectionString);
-                if (db.State == ConnectionState.Closed)
-                {
-                    db.Open();
-                }
-                SqlCommand select = new SqlCommand("SELECT * FROM " + name);
+                db.Open();
+                SqlCommand select = new SqlCommand("SELECT COUNT(*) AS OSCS FROM " + name, db);
                 using (SqlDataReader reader = select.ExecuteReader())
                 {
-                    oscs = new Oscillator[select.ExecuteNonQuery()];
-                    for (Int32 i = 0; i < oscs.Length; i++)
+                    reader.Read();
+                    oscillators = new Oscillator[Convert.ToInt32(reader["OSCS"].ToString())];
+                }
+                select.CommandText = "SELECT * FROM " + name;
+                using (SqlDataReader reader = select.ExecuteReader())
+                {
+                    Int32 i = 0;
+                    while (reader.Read())
                     {
-                        oscs[i] = new Oscillator
+                        oscillators[i] = new Oscillator
                         (
-                            Convert.ToBoolean(Convert.ToInt32(reader.GetSqlValue(0))),
-                            Convert.ToInt32(reader.GetSqlValue(1)),
-                            Convert.ToInt32(reader.GetSqlValue(2)),
-                            Convert.ToInt32(reader.GetSqlValue(3)),
-                            (WaveShape)Convert.ToInt32(reader.GetSqlValue(4))
+                            Convert.ToBoolean(reader["Enable"]),
+                            Convert.ToInt32(reader["Volume"]),
+                            Convert.ToInt32(reader["Frequency"]),
+                            Convert.ToInt32(reader["Amplitude"]),
+                            (Waveshape)Convert.ToInt32(reader["Shape"])
                         );
+                        i++;
                     }
                 }
+                db.Close();
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.SqlLoadError);
+                throw new PresetException("Ошибка при загрузке пресета из базы данных Sql.");
             }
         }
     }

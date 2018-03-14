@@ -1,6 +1,5 @@
-﻿using System;
-using System.Xml.Serialization;
-using Otone.Service.Exceptions;
+﻿using Otone.Service.Exceptions;
+using System;
 
 namespace Otone.Main.Synthesis
 {
@@ -14,7 +13,6 @@ namespace Otone.Main.Synthesis
         /// <summary>
         /// Состояние вкл / выкл.
         /// </summary>
-        [XmlAttribute]
         public Boolean Enable
         {
             get
@@ -28,7 +26,6 @@ namespace Otone.Main.Synthesis
         /// <summary>
         /// Процентная громкость.
         /// </summary>
-        [XmlAttribute]
         public Int32 Volume
         {
             get
@@ -42,7 +39,6 @@ namespace Otone.Main.Synthesis
         /// <summary>
         /// Частота.
         /// </summary>
-        [XmlAttribute]
         public Int32 Frequency
         {
             get
@@ -56,7 +52,6 @@ namespace Otone.Main.Synthesis
         /// <summary>
         /// Амплитуда.
         /// </summary>
-        [XmlAttribute]
         public Int32 Amplitude
         {
             get
@@ -66,12 +61,11 @@ namespace Otone.Main.Synthesis
         }
 
 
-        private WaveShape shape;
+        private Waveshape shape;
         /// <summary>
         /// Волноформа.
         /// </summary>
-        [XmlAttribute]
-        public WaveShape Shape
+        public Waveshape Shape
         {
             get
             {
@@ -80,12 +74,9 @@ namespace Otone.Main.Synthesis
         }
 
 
-        public Oscillator()
-        {
-
-        }
-
-
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "enable">
         /// Состояние вкл / выкл.
         /// </param>
@@ -102,15 +93,20 @@ namespace Otone.Main.Synthesis
         /// Волноформа.
         /// </param>
         /// <exception cref = "SynthesisException"></exception>
-        public Oscillator(Boolean enable, Int32 volume, Int32 frequency, Int32 amplitude, WaveShape shape)
+        public Oscillator(Boolean enable, Int32 volume, Int32 frequency, Int32 amplitude, Waveshape shape)
         {
-            if (volume < 0 || volume > 150 || frequency < 1 || frequency > 100 || amplitude < 1 || amplitude > 100) throw new SynthesisException(SynthesisExceptionType.OutOfPermissibleValue);
+            if (volume < 0 || volume > 150 || frequency < 1 || frequency > 100 || amplitude < 1 || amplitude > 100) throw new SynthesisException("Нарушены границы допустимого значения.");
             this.enable = enable;
             this.volume = volume;
             this.frequency = frequency;
             this.amplitude = amplitude;
             this.shape = shape;
         }
+
+
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "enable">
         /// Состояние вкл / выкл.
         /// </param>
@@ -127,9 +123,9 @@ namespace Otone.Main.Synthesis
         /// Волноформа.
         /// </param>
         /// <exception cref = "SynthesisException"></exception>
-        public Oscillator(Boolean enable, Double volume, Int32 frequency, Int32 amplitude, WaveShape shape)
+        public Oscillator(Boolean enable, Double volume, Int32 frequency, Int32 amplitude, Waveshape shape)
         {
-            if (volume < 0 || volume > 1.5 || frequency < 1 || frequency > 100 || amplitude < 1 || amplitude > 100) throw new SynthesisException(SynthesisExceptionType.OutOfPermissibleValue);
+            if (volume < 0 || volume > 1.5 || frequency < 1 || frequency > 100 || amplitude < 1 || amplitude > 100) throw new SynthesisException("Нарушены границы допустимого значения.");
             this.enable = enable;
             this.volume = (Int32)(volume * 100);
             this.frequency = frequency;

@@ -6,14 +6,13 @@ Classes' library status, blocks' purposes
 Block: exceptions for preset.
 Purpose: errors' diagnostics.
 Members:
-	+ class PresetException,
-	+ enumeration PresetExceptionType.
+	+ class PresetException.
 Users:
 	+ sealed class PresetTxt,
-	- sealed class PresetXml,
-	- sealed class PresetSql,
-	- sealed class PresetSoap,
-	- sealed class PresetBinary,
+	+ sealed class PresetXml,
+	+ sealed class PresetSql,
+	+ sealed class PresetSoap,
+	+ sealed class PresetBinary,
 	- USER PROGRAMME.
 Status: ready.
 
@@ -22,11 +21,10 @@ Status: ready.
 Block: exceptions for piano.
 Purpose: errors' diagnostics.
 Members:
-	+ class PianoException,
-	+ enumeration PianoExceptionType.
+	+ class PianoException.
 Users:
 	+ class PitchFork,
-	- sealed class Piano,
+	+ sealed class Piano,
 	- USER PROGRAMME.
 Status: ready.
 
@@ -35,8 +33,7 @@ Status: ready.
 Block: exceptions for piano.
 Purpose: errors' diagnostics.
 Members:
-	+ class SynthesisException,
-	+ enumeration SynthesisExceptionType.
+	+ class SynthesisException.
 Users:
 	+ class Oscillator,
 	- class Sound,
@@ -49,10 +46,10 @@ Block: piano.
 Purpose: user's interaction with piano in programming code.
 Members:
 	+ class Note,
-	- sealed class Piano,
+	+ sealed class Piano,
 	+ enumeration Key,
 	+ enumeration Octave,
-	- errors' diagnostics block.
+	+ errors' diagnostics block.
 Users:
 	- USER PROGRAMME.
 
@@ -63,11 +60,11 @@ Purpose: user's interaction with file system in different formats (also with SQL
 Members:
 	+ interface IPreset,
 	+ sealed class PresetTxt,
-	- sealed class PresetXml,
-	- sealed class PresetSql,
-	- sealed class PresetSoap,
-	- sealed class PresetBinary,
-	- errors' diagnostics block.
+	+ sealed class PresetXml,
+	+ sealed class PresetSql,
+	+ sealed class PresetSoap,
+	+ sealed class PresetBinary,
+	+ errors' diagnostics block.
 Users:
 	- oscillator block,
 	- USER PROGRAMME.

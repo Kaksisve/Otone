@@ -2,7 +2,7 @@
 using Otone.Service.Exceptions;
 using System;
 using System.IO;
-using System.Xml.Serialization;
+using System.Runtime.Serialization;
 
 namespace Otone.Main.Preset
 {
@@ -11,6 +11,9 @@ namespace Otone.Main.Preset
     /// </summary>
     public sealed class PresetXml : IPreset
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         public PresetXml()
         {
 
@@ -27,19 +30,19 @@ namespace Otone.Main.Preset
         /// Массив осцилляторов для записи его в пресет.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void SavePreset(String fileName, Oscillator[] oscs)
+        public void SavePreset(String fileName, Oscillator[] oscillators)
         {
             try
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(Oscillator[]));
+                DataContractSerializer serializer = new DataContractSerializer(typeof(Oscillator[]));
                 using (Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                 {
-                    serializer.Serialize(stream, oscs);
+                    serializer.WriteObject(stream, oscillators);
                 }
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.XmlSaveError);
+                throw new PresetException("Ошибка при записи пресета в Xml-файл.");
             }
         }
 
@@ -50,24 +53,24 @@ namespace Otone.Main.Preset
         /// <param name = "fileName">
         /// Путь к файлу.
         /// </param>
-        /// <param name = "oscs">
+        /// <param name = "oscillators">
         /// Неинициализированный массив осцилляторов для загрузки в него пресета.
         /// </param>
         /// <exception cref = "PresetException"></exception>
-        public void LoadPreset(String fileName, out Oscillator[] oscs)
+        public void LoadPreset(String fileName, out Oscillator[] oscillators)
         {
             try
             {
-                oscs = null;
-                XmlSerializer serializer = new XmlSerializer(typeof(Oscillator));
+                oscillators = null;
+                DataContractSerializer serializer = new DataContractSerializer(typeof(Oscillator[]));
                 using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    oscs = (Oscillator[])serializer.Deserialize(stream);
+                    oscillators = (Oscillator[])serializer.ReadObject(stream);
                 }
             }
             catch
             {
-                throw new PresetException(PresetExceptionType.XmlLoadError);
+                throw new PresetException("Ошибка при загрузке пресета из Xml-файла.");
             }
         }
     }

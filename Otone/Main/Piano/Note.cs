@@ -9,7 +9,7 @@ namespace Otone.Main.Keys
     {
         private Key key;
         /// <summary>
-        /// Номер.
+        /// Клавиша.
         /// </summary>
         public Key Key
         {
@@ -33,8 +33,11 @@ namespace Otone.Main.Keys
         }
 
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "key">
-        /// Номер.
+        /// Клавиша.
         /// </param>
         /// <param name = "octave">
         /// Октава.
@@ -47,27 +50,21 @@ namespace Otone.Main.Keys
 
 
         /// <summary>
-        /// Получает частоту, зная камертон и интервал между клавишей и камертоном.
+        /// Получает частоту клавиши.
         /// </summary>
         /// <param name = "pitchFork">
         /// Камертон.
         /// </param>
         /// <param name = "interval">
-        /// Интервал.
+        /// Интервал между клавишей и камертоном.
         /// </param>
-        public Int32 GetFrequency(PitchFork pitchFork, Int32 interval)
+        public Int32 GetFrequency(PitchFork pitchFork)
         {
-            return ((Int32)(pitchFork.Frequency * Math.Pow(2, interval / Piano.KeysCount)));
+            return ((Int32)(pitchFork.Frequency * Math.Pow(2, GetInterval() / Piano.KeysCount)));
         }
 
 
-        /// <summary>
-        /// Получает интервал, зная клавишу.
-        /// </summary>
-        /// <param name = "note">
-        /// Клавиша.
-        /// </param>
-        public Int32 GetInterval()
+        private Int32 GetInterval()
         {
             return (((Int32)Octave * Piano.KeysCount) + (Int32)Key);
         }

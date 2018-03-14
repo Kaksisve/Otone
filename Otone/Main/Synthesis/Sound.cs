@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.DirectX.DirectSound;
-using System.Threading;
+﻿using Microsoft.DirectX.DirectSound;
 using Otone.Service.Exceptions;
+using System;
 
 namespace Otone.Main.Synthesis
 {
@@ -25,7 +24,7 @@ namespace Otone.Main.Synthesis
 
         private Int32 detune = 0;
         /// <summary>
-        /// Процентная громкость.
+        /// Расстройка.
         /// </summary>
         public Int32 Detune
         {
@@ -39,57 +38,40 @@ namespace Otone.Main.Synthesis
         private Oscillator[] oscillators;
 
 
-        private const Int32 loopDuration = 44100; //Иные варианты: 31400, 58875, 43150
+        private const Int32 loopDuration = 44100;
+
+
+        // [10; 44100]
+        private const Int32 secondaryLoopDuration = loopDuration;
+
+
+        private Microsoft.DirectX.DirectSound.Buffer player;
+
+
         /// <summary>
-        /// Длина секундой звуковой петли.
+        /// Инициализирует новый экземпляр класса.
         /// </summary>
-        public Int32 LoopDuration
-        {
-            get
-            {
-                return loopDuration;
-            }
-        }
-
-
-        Microsoft.DirectX.DirectSound.Buffer player;
-
-
         /// <param name = "volume">
         /// Процентная громкость [0; 150] %.
         /// </param>
-        /// <param name = "oscs">
+        /// <param name = "oscillators">
         /// Массив осцилляторов.
         /// </param>
         /// <param name = "detune">
-        /// Расстройка [0; 10] мс.
+        /// Расстройка [0; 10000].
         /// </param>
-        public Sound(Int32 volume, Oscillator[] oscs)
+        public Sound(Int32 volume, Oscillator[] oscillators, Int32 detune)
         {
-            if (volume < 0 || volume > 150 || oscs == null || oscs.Length == 0) throw new SynthesisException(SynthesisExceptionType.OutOfPermissibleValue);
+            if (volume < 0 || volume > 150 || oscillators == null || oscillators.Length == 0 || detune < 0 || detune > 10000) throw new SynthesisException("Нарушены границы допустимого значения.");
             this.volume = volume;
-            oscillators = oscs;
-        }
-
-
-        /// <param name = "volume">
-        /// Процентная громкость [0; 150] %.
-        /// </param>
-        /// <param name = "oscs">
-        /// Массив осцилляторов.
-        /// </param>
-        /// <param name = "detune">
-        /// Расстройка [0; 10] мс.
-        /// </param>
-        public Sound(Int32 volume, Oscillator[] oscs, Int32 detune)
-        {
-            if (volume < 0 || volume > 150 || oscs == null || oscs.Length == 0 || detune < 0 || detune > 10) throw new SynthesisException(SynthesisExceptionType.OutOfPermissibleValue);
-            this.volume = volume;
-            oscillators = oscs;
+            this.oscillators = oscillators;
             this.detune = detune;
         }
 
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса.
+        /// </summary>
         /// <param name = "volume">
         /// Процентная громкость ([0; 1.5] * 100) %.
         /// </param>
@@ -97,34 +79,18 @@ namespace Otone.Main.Synthesis
         /// Массив осцилляторов.
         /// </param>
         /// <param name = "detune">
-        /// Расстройка [0; 10] мс.
-        /// </param>
-        public Sound(Double volume, Oscillator[] oscillators)
-        {
-            if (volume < 0 || volume > 1.5 || oscillators == null || oscillators.Length == 0) throw new SynthesisException(SynthesisExceptionType.OutOfPermissibleValue);
-            this.volume = (Int32)(volume * 100);
-            this.oscillators = oscillators;
-        }
-
-
-        /// <param name = "volume">
-        /// Процентная громкость ([0; 1.5] * 100) %.
-        /// </param>
-        /// <param name = "oscillators">
-        /// Массив осцилляторов.
-        /// </param>
-        /// <param name = "detune">
-        /// Расстройка [0; 10] мс.
+        /// Расстройка [0; 10000].
         /// </param>
         public Sound(Double volume, Oscillator[] oscillators, Int32 detune)
         {
-            if (volume < 0 || volume > 1.5 || oscillators == null || oscillators.Length == 0 || detune < 0 || detune > 10) throw new SynthesisException(SynthesisExceptionType.OutOfPermissibleValue);
+            if (volume < 0 || volume > 1.5 || oscillators == null || oscillators.Length == 0 || detune < 0 || detune > 10000) throw new SynthesisException("Нарушены границы допустимого значения.");
             this.volume = (Int32)(volume * 100);
             this.oscillators = oscillators;
             this.detune = detune;
         }
 
 
+        #region Методы, отвечающие за генерацию звуковых данных.
         private void Sine(Oscillator oscillator, out Double[] data)
         {
             data = new Double[loopDuration];
@@ -229,7 +195,6 @@ namespace Otone.Main.Synthesis
         }
 
 
-        //https://habrahabr.ru/post/219337/
         private void Saw(Oscillator oscillator, out Double[] data)
         {
             data = new Double[loopDuration];
@@ -237,7 +202,7 @@ namespace Otone.Main.Synthesis
             for (Int32 i = 0; i < loopDuration; i++)
             {
                 Double sum = 0;
-                for (Int32 j = 0; j < loopDuration; j++)
+                for (Int32 j = 0; j < secondaryLoopDuration; j++)
                 {
                     if (j != 0) sum += (Math.Pow(-1, j + 1) / j) * extra[i];
                     else sum += oscillator.Amplitude;
@@ -257,7 +222,7 @@ namespace Otone.Main.Synthesis
             for (Int32 i = 0; i < loopDuration; i++)
             {
                 Double sum = 0;
-                for (Int32 j = 0; j < loopDuration; j++)
+                for (Int32 j = 0; j < secondaryLoopDuration; j++)
                 {
                     if (j != 0) sum += Math.Pow(-1, (j - 1) / 2) * (extra[i] / Math.Pow(j, 2));
                     else sum += oscillator.Amplitude;
@@ -279,10 +244,22 @@ namespace Otone.Main.Synthesis
                 data[i] = default(Int32);
             }
         }
+        #endregion
 
 
         private void Average(Double[][] datas, out Double[] average)
         {
+            if (detune != 0)
+            {
+                for (Int32 i = 0; i < datas.Length; i++)
+                {
+                    datas[i][0] = datas[i][1];
+                    for (Int32 j = 1; j < detune - 1; j++)
+                    {
+                        datas[i][j] = datas[i][j + 1];
+                    }
+                }
+            }
             average = new Double[loopDuration];
             for (Int32 i = 0; i < loopDuration; i++)
             {
@@ -296,38 +273,41 @@ namespace Otone.Main.Synthesis
         }
 
 
-        public void PlayAverage()
+        /// <summary>
+        /// Проигрывает звук.
+        /// </summary>
+        public void Play()
         {
             Double[][] extra = new Double[oscillators.Length][];
             for (Int32 i = 0; i < oscillators.Length; i++)
             {
                 switch (oscillators[i].Shape)
                 {
-                    case WaveShape.Sine:
+                    case Waveshape.Sine:
                         Sine(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Tangent:
+                    case Waveshape.Tangent:
                         Tangent(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Secant:
+                    case Waveshape.Secant:
                         Secant(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Noise:
+                    case Waveshape.Noise:
                         Noise(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.WhiteNoise:
+                    case Waveshape.WhiteNoise:
                         WhiteNoise(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Square:
+                    case Waveshape.Square:
                         Square(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Saw:
+                    case Waveshape.Saw:
                         Saw(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Triangle:
+                    case Waveshape.Triangle:
                         Triangle(oscillators[i], out extra[i]);
                         break;
-                    case WaveShape.Void:
+                    case Waveshape.Void:
                         Void(oscillators[i], out extra[i]);
                         break;
                 }
@@ -336,12 +316,6 @@ namespace Otone.Main.Synthesis
             player = new SecondaryBuffer(new BufferDescription(), new Device());
             player.Write(0, data, LockFlag.EntireBuffer);
             player.Play(0, BufferPlayFlags.Default);
-        }
-
-
-        public void Play(Oscillator[] oscillators)
-        {
-
         }
     }
 }
